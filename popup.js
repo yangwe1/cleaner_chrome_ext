@@ -80,18 +80,18 @@ function httpRequest(url, callback){
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  getCurrentTabUrl(function(url) {
+  getCurrentTabUrl(function(article_url) {
 
-    var url = "http://localhost:9999/?url="+url+"&way=news";
+    console.log(encodeURIComponent(article_url))
+    var url = "http://localhost:9999/";
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", url, false);
+    xmlHttp.open("POST", url, false);
     xmlHttp.setRequestHeader("Content-Type",
             "application/x-www-form-urlencoded;");
-    xmlHttp.send();
+    xmlHttp.send("article_url="+encodeURIComponent(article_url)+"&way=wechat");
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
       renderResult(xmlHttp.responseText);
     }
-    console.log(xmlHttp.responseText)
     // httpRequest(url, function(result){
     //   document.body.innerHTML = result;
     //   console.log(result);
