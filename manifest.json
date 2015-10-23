@@ -5,6 +5,12 @@
 	"description": "This extension shows page after apply Cleaner rules.",
 	"version": "1.0",
 
+	"content_scripts":[
+		{
+			"matches": ["*://spider8.qianfandu.com/*"],
+			"js": ["jquery.min.js", "test.js"]
+		}
+	],
 	"browser_action":{
 		"default_icon": "icon.png",
 		"default_popup": "popup.html",
@@ -12,6 +18,8 @@
 	},
 	"permissions": [
 		"activeTab",
-		"https://localhost:9999/"
+		"https://localhost:9999/",
+		"tabs",
+		"http://spider8.qianfandu.com:8080/manage/data/*/*/edit"
 	]
 }

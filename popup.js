@@ -8,6 +8,7 @@
  * @param {function(string)} callback - called when the URL of the current tab
  *   is found.
  */
+
 function getCurrentTabUrl(callback) {
   // Query filter to be passed to chrome.tabs.query - see
   // https://developer.chrome.com/extensions/tabs#method-query
@@ -27,14 +28,14 @@ function getCurrentTabUrl(callback) {
     // A tab is a plain object that provides information about the tab.
     // See https://developer.chrome.com/extensions/tabs#type-Tab
     var url = tab.url;
-
+    var tabID = tab.id
     // tab.url is only available if the "activeTab" permission is declared.
     // If you want to see the URL of other tabs (e.g. after removing active:true
     // from |queryInfo|), then the "tabs" permission is required to see their
     // "url" properties.
     console.assert(typeof url == 'string', 'tab.url should be a string');
 
-    callback(url);
+    callback(url, tabID);
   });
 
   // Most methods of the Chrome extension APIs are asynchronous. This means that
@@ -79,16 +80,37 @@ function httpRequest(url, callback){
   xhr.send();
 }
 
+function getBigdataURL(){
+  var resp;
+  chrome.runtime.sendMessage({isBigdata: "ok"}, function(response){
+    resp = response
+  });
+  return resp
+}
+
+chrome.browserAction.onClicked.addListener(function (tab) {
+    // ...check the URL of the active tab against our pattern and...
+    if (urlRegex.test(tab.url)) {
+        // ...if it matches, send a message specifying a callback too
+        chrome.tabs.sendMessage(tab.id, {isBigdata: 'ok'}, doStuffWithDom);
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
-  getCurrentTabUrl(function(article_url) {
+  getCurrentTabUrl(function(article_url, tab_id) {
 
     console.log(encodeURIComponent(article_url))
     var url = "http://localhost:9999/";
+    if (article_url.slice(7, 14) == "spider8"){
+      console.log(article_url.slice(7, 14))
+      spiderURL = getBigdataURL();
+      article_url = spiderURL.data;
+    };
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("POST", url, false);
     xmlHttp.setRequestHeader("Content-Type",
             "application/x-www-form-urlencoded;");
-    xmlHttp.send("article_url="+encodeURIComponent(article_url)+"&way=wechat");
+    xmlHttp.send("article_url="+encodeURIComponent(article_url));
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
       renderResult(xmlHttp.responseText);
     }
